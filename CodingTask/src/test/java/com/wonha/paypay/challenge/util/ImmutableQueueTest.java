@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author wonha.shin
+ * @author Wonha Shin
  */
 class ImmutableQueueTest {
 

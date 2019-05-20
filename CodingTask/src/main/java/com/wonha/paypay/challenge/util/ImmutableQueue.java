@@ -1,7 +1,7 @@
 package com.wonha.paypay.challenge.util;
 
 /**
- * @author wonha.shin
+ * @author Wonha Shin
  */
 public class ImmutableQueue<T> implements Queue<T> {
 	@Override
