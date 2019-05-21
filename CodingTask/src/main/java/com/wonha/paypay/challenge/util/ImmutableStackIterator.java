@@ -30,6 +30,6 @@ public class ImmutableStackIterator<T> implements StackIterator<T> {
 
 	@Override
 	public StackIterator<T> pop() {
-		throw new UnsupportedOperationException();
+		return new ImmutableStackIterator<>(target.getNested());
 	}
 }
