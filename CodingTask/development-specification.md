@@ -30,6 +30,7 @@ public interface Queue<T> {
 }
 ```
 
+# Requirement Assumption
 Null safe, boundless collection, Singletone world AMAP - dequeue should return singleton value when the queue is empty
 
 ## Interface Specifications
@@ -44,7 +45,7 @@ Since some of the details of the interface were not specified in the original re
 | Method | Parameters | Special Return Values | Throws |
 | --- | --- | --- | --- |
 | `enQueue(e)` | e - the element to add | | |
-| `deQueue()` | | empty queue - if the queue is empty | |
+| `deQueue()` | | empty queue - if the queue is already empty | |
 | `head()` | | null - if the queue is empty | |
 
 ## Test

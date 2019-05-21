@@ -9,9 +9,9 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>, Countable {
 
 	private static final ImmutableStack NIL = new ImmutableStack<>();
 
-	final T element;
-	final ImmutableStack<T> nested;
-	final int size;
+	private final T element;
+	private final ImmutableStack<T> nested;
+	private final int size;
 
 	public ImmutableStack() {
 		this.element = null;
@@ -68,4 +68,11 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>, Countable {
 		return reversed;
 	}
 
+	T getElement() {
+		return element;
+	}
+
+	ImmutableStack<T> getNested() {
+		return nested;
+	}
 }

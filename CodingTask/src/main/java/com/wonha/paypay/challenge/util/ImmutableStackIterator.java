@@ -24,8 +24,8 @@ public class ImmutableStackIterator<T> implements Iterator<T> {
 		if (!hasNext()) {
 			throw new NoSuchElementException("No more elements.");
 		}
-		T next = target.element;
-		target = target.nested;
+		T next = target.getElement();
+		target = target.getNested();
 		return next;
 	}
 }

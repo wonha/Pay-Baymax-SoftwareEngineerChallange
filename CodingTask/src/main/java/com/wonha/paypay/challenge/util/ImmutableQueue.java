@@ -33,9 +33,9 @@ public class ImmutableQueue<T> implements Queue<T>, Countable {
 		if (isEmpty() || size() == 1) {
 			return NIL;
 		} else if (back.isEmpty()) {
-			return new ImmutableQueue<>(ImmutableStack.getEmptyInstance(), front.createReversed().nested);
+			return new ImmutableQueue<>(ImmutableStack.getEmptyInstance(), front.createReversed().getNested());
 		} else {
-			return new ImmutableQueue<>(front, back.nested);
+			return new ImmutableQueue<>(front, back.getNested());
 		}
 	}
 
