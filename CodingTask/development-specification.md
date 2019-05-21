@@ -1,7 +1,12 @@
 # Immutable Queue
 
 ## Requirements
+- null safe - yes
+````
 - null safe - No
+    - -null value can't exist on this stack, if we have to persist null, then we can create special object to represent the end of queue & stack-
+````
+
 - Iterator - further improve
 - thread safe - further improve
 
@@ -38,3 +43,13 @@ N/A
 ## Implementation Specifications
 
 Internally uses array for spatial locality, downside is it doens't shirnk automatically.
+Time complexity enQueue & deQueue, avg case: O(1)
+If we internally use array instead of immutablestack, then time complexity become O(n)
+
+---
+Stack
+getEmptyInstance() guarantees that all the empty ImmutableStack instances are identical as well as equal.
+This is efficiency and based on thinking that "duplicated Immutable object does not need to exist in functional world"
+The private constructur and 2 argument constructor guarantees this
+
+Iterator is concurrent safe, unlike Java's other iterator, there is no need to keep track of modification count of backing ImmutableStack
