@@ -21,10 +21,17 @@ class ImmutableQueueTest {
 	// enQueue
 
 	@Test
-	void enQueueNewElement() {
+	void enQueueOnEmptyQueue() {
 		Queue<String> newQueue = empty.enQueue("new element");
 		assertTrue(newQueue != empty);
 		assertEquals(1, ((Countable) newQueue).size());
+	}
+
+	@Test
+	void enQueueOnQueue() {
+		Queue<String> newQueue = one.enQueue("new element");
+		assertTrue(newQueue != empty);
+		assertEquals("1", newQueue.head());
 	}
 
 	@Test
