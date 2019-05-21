@@ -7,36 +7,18 @@ import java.util.Iterator;
  */
 public class ImmutableStack<T> implements Stack<T>, Iterable<T>{
 
-	private final static ImmutableStack NIL = new ImmutableStack<>();
+	private static final ImmutableStack NIL = new ImmutableStack<>(null, null);
 
-	final T head;
+	final T element;
 	final ImmutableStack<T> nested;
 
-	private ImmutableStack() {
-		this.head = null;
-		this.nested = null;
-	}
-
-	public ImmutableStack(T head, ImmutableStack<T> nested) {
-		if (head == null && nested == null) {
-			throw new IllegalArgumentException("Use static method offered to use empty stack.");
-		}
-		this.head = head;
+	private ImmutableStack(T element, ImmutableStack<T> nested) {
+		this.element = element;
 		this.nested = nested;
 	}
 
 	public static <T> ImmutableStack<T> getEmptyInstance() {
 		return NIL;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return NIL == this;
-	}
-
-	@Override
-	public T peek() {
-		return head;
 	}
 
 	@Override
@@ -46,19 +28,29 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>{
 
 	@Override
 	public ImmutableStack<T> pop() {
-		return createReversed();
+		return nested;
 	}
 
-	private ImmutableStack<T> createReversed() {
-		ImmutableStack<T> reversed = getEmptyInstance();
-		for (T t : this) {
-			reversed.push(t);
-		}
-		return reversed;
+	@Override
+	public T peek() {
+		return element;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return NIL == this;
 	}
 
 	@Override
 	public Iterator<T> iterator() {
 		return new ImmutableStackIterator<>(this);
+	}
+
+	ImmutableStack<T> createReversed() {
+		ImmutableStack<T> reversed = getEmptyInstance();
+		for (T t : this) {
+			reversed.push(t);
+		}
+		return reversed;
 	}
 }

@@ -17,7 +17,7 @@ Since some of the details of the interface were not specified in the original re
 | --- | --- | --- | --- |
 | `enQueue(e)` | e - the element to add| false - if the element could not added to this queue | ClassCastException - if the class of the specified element prevents it from being added to this queue <br><br> NullPointerException - if the specified element is null|
 | `deQueue()` | | null - if the queue is empty | |
-| `head()` | | null - if the queue is empty | |
+| `element()` | | null - if the queue is empty | |
 
 ## Test
 Test will be black box
@@ -30,7 +30,7 @@ Test will be black box
 | | `deQueue()` | | from empty| | |
 | Read | | | | | |
 | | `deQueue()` | | | | |
-| | `head()` | | | | |
+| | `element()` | | | | |
 | Util | | | | | |
 | | `isEmpty()` | | | | |
 
