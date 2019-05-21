@@ -1,12 +1,11 @@
 package com.wonha.paypay.challenge.util;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * @author Wonha Shin
  */
-public class ImmutableStackIterator<T> implements Iterator<T> {
+public class ImmutableStackIterator<T> implements StackIterator<T> {
 
 	private ImmutableStack<T> target;
 
@@ -27,5 +26,10 @@ public class ImmutableStackIterator<T> implements Iterator<T> {
 		T next = target.getElement();
 		target = target.getNested();
 		return next;
+	}
+
+	@Override
+	public StackIterator<T> pop() {
+		throw new UnsupportedOperationException();
 	}
 }

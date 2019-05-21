@@ -1,7 +1,5 @@
 package com.wonha.paypay.challenge.util;
 
-import java.util.Iterator;
-
 /**
  * @author Wonha Shin
  */
@@ -51,7 +49,7 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>, Countable {
 	}
 
 	@Override
-	public Iterator<T> iterator() {
+	public StackIterator<T> iterator() {
 		return new ImmutableStackIterator<>(this);
 	}
 
