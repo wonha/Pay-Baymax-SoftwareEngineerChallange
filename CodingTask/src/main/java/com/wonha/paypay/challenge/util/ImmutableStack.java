@@ -5,16 +5,25 @@ import java.util.Iterator;
 /**
  * @author Wonha Shin
  */
-public class ImmutableStack<T> implements Stack<T>, Iterable<T>{
+public class ImmutableStack<T> implements Stack<T>, Iterable<T>, Countable {
 
-	private static final ImmutableStack NIL = new ImmutableStack<>(null, null);
+	private static final ImmutableStack NIL = new ImmutableStack<>();
 
 	final T element;
 	final ImmutableStack<T> nested;
+	final int size;
+
+	public ImmutableStack() {
+		this.element = null;
+		this.nested = null;
+		this.size = 0;
+	}
 
 	private ImmutableStack(T element, ImmutableStack<T> nested) {
 		this.element = element;
 		this.nested = nested;
+		int nestedSize = nested != null ? nested.size() : 0;
+		this.size = nestedSize + 1;
 	}
 
 	public static <T> ImmutableStack<T> getEmptyInstance() {
@@ -46,11 +55,17 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>{
 		return new ImmutableStackIterator<>(this);
 	}
 
+	@Override
+	public int size() {
+		return this.size;
+	}
+
 	ImmutableStack<T> createReversed() {
 		ImmutableStack<T> reversed = getEmptyInstance();
 		for (T t : this) {
-			reversed.push(t);
+			reversed = reversed.push(t);
 		}
 		return reversed;
 	}
+
 }
