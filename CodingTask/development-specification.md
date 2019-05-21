@@ -33,7 +33,7 @@ public interface Queue<T> {
 # Requirement Assumption
 Null safe, boundless collection, Singletone world AMAP - dequeue should return singleton value when the queue is empty
 
-TBD - Along with ImmutableQueue and ImmutableStack, the Iterator implementation also should be immutable. ImmutableStackIterator should return new Iterator whenever `pop()` is called, which is defined in the StackIterator interface.
+TBD - Along with ImmutableQueue and ImmutableStack, the Iterator implementation also should be immutable. ImmutableStackIterator should return new Iterator whenever `pop()` is called, which is defined in the StackIterator interface. This can be implemented keep tracking the modification count to avoid `ConcurrentModificationException()`.
 
 ## Interface Specifications
 Since some of the details of the interface were not specified in the original requirement, 
