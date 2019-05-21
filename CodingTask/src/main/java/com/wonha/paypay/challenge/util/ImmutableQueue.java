@@ -5,7 +5,8 @@ package com.wonha.paypay.challenge.util;
  */
 public class ImmutableQueue<T> implements Queue<T>, Countable {
 
-	private static final ImmutableQueue NIL = new ImmutableQueue(ImmutableStack.getEmptyInstance(), ImmutableStack.getEmptyInstance());
+	private static final ImmutableQueue NIL =
+			new ImmutableQueue(ImmutableStack.getEmptyInstance(), ImmutableStack.getEmptyInstance());
 
 	private ImmutableStack<T> front;
 	private ImmutableStack<T> back;
