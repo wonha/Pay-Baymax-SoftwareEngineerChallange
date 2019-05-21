@@ -11,9 +11,9 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>, Countable {
 
 	private final T element;
 	private final ImmutableStack<T> nested;
-	private final int size;
+	final int size;
 
-	public ImmutableStack() {
+	private ImmutableStack() {
 		this.element = null;
 		this.nested = null;
 		this.size = 0;

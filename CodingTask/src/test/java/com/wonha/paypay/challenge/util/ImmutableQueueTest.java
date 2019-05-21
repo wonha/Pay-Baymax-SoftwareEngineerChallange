@@ -11,30 +11,30 @@ import org.junit.jupiter.api.Test;
  */
 class ImmutableQueueTest {
 
-	final Queue<String> empty = ImmutableQueue.getEmptyInstance();
-	final Queue<String> one = ImmutableQueue.<String>getEmptyInstance()
+	private final Queue<String> empty = ImmutableQueue.getEmptyInstance();
+	private final Queue<String> one = ImmutableQueue.<String>getEmptyInstance()
 				.enQueue("1");
-	final Queue<String> two = ImmutableQueue.<String>getEmptyInstance()
+	private final Queue<String> two = ImmutableQueue.<String>getEmptyInstance()
 				.enQueue("1")
 				.enQueue("2");
 
 	// enQueue
 
 	@Test
-	public void enQueueNewElement() {
+	void enQueueNewElement() {
 		Queue<String> newQueue = empty.enQueue("new element");
 		assertTrue(newQueue != empty);
 		assertEquals(1, ((Countable) newQueue).size());
 	}
 
 	@Test
-	public void enQueueNullElement() {
+	void enQueueNullElement() {
 		Queue<String> newQueue = empty.enQueue(null);
 		assertEquals(1, ((Countable) newQueue).size());
 	}
 
 	@Test
-	public void enQueueIdenticalElementTwice() {
+	void enQueueIdenticalElementTwice() {
 		String elem = "new element";
 		Queue<String> newQueue = empty.enQueue(elem).enQueue(elem);
 		assertEquals(2, ((Countable) newQueue).size());
@@ -43,57 +43,57 @@ class ImmutableQueueTest {
 	// deQueue
 
 	@Test
-	public void deQueueOneElement() {
+	void deQueueOneElement() {
 		Queue<String> newQueue = two.deQueue();
 		assertEquals(1, ((Countable) newQueue).size());
 		assertEquals("2", newQueue.head());
 	}
 
 	@Test
-	public void deQueueOnEmptyQueue() {
+	void deQueueOnEmptyQueue() {
 		Queue<String> newQueue = empty.deQueue();
 		assertTrue(empty == newQueue);
 	}
 
 	@Test
-	public void deQueueThenIdentical() {
+	void deQueueThenIdentical() {
 		assertTrue(empty == one.deQueue());
 	}
 
 	// head
 
 	@Test
-	public void head() {
+	void head() {
 		assertEquals("1", one.head());
 	}
 
 	@Test
-	public void headOnEmptyQueue() {
+	void headOnEmptyQueue() {
 		assertTrue(null == empty.head());
 	}
 
 	@Test
-	public void headOnNullContainingQueue() {
+	void headOnNullContainingQueue() {
 		Queue<String> newQueue = empty.enQueue(null);
-		assertTrue(null == empty.head());
+		assertTrue(null == newQueue.head());
 	}
 
 	// isEmpty
 
 	@Test
-	public void isEmptyOnEmptyQueue() {
+	void isEmptyOnEmptyQueue() {
 		assertTrue(empty.isEmpty());
 	}
 
 	@Test
-	public void isEmptyOnOneElemQueue() {
+	void isEmptyOnOneElemQueue() {
 		assertFalse(one.isEmpty());
 	}
 
 	// getEmptyInstance
 
 	@Test
-	public void alwaysIdenticalEmptyQueue() {
+	void alwaysIdenticalEmptyQueue() {
 		assertTrue(ImmutableQueue.getEmptyInstance() == ImmutableQueue.getEmptyInstance());
 	}
 
