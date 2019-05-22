@@ -23,11 +23,11 @@ These more detailed requirements based on the original requirement, and some of 
 - Query type will be both point query and time-series based range query (including Ad-hoc query on analysis processor)
 - Analsis report will be updated in every 10 minutes
 - For simplicity of capacity estimation, suppose we produce 1 fixed format of statistical analytic result (1KB avg.), which will become a root of other report formats
-- The write event will should be processed 'at least once' in any cases. This does not means the event should be processed 'exactly once'. So the job should be idempotent
+- The write event will should be processed 'at least once' in any cases. The system does not need to gurantee exactly once semantics, so the underlying job should be idempotent
 
 ## Capacity Estimation
 
-This section estimate the scale of the system.   
+This section estimate the base scale of the system.   
 Scaling, Partitioning, Load Balancing and Caching of system will base on this estimation.
 
 ### Traffic estimates
@@ -65,7 +65,7 @@ Since read QPS is 12K/s,
 The data as a result of analysis can be stored in memory such as distributed cache, in-memory database grid and embedded database of analysis processor.   
 This section will assume that we use distributed cache server to hold certain period of analysis report.
 
-There can be various format of analysis report in real world anlysis system. However as mentioned in 'Extended Requirement' section, this section will assume that each analysis report is just a statistical data for past 10 minutes.
+There can be various format of analysis report in real world anlysis system. However as mentioned in 'Extended Requirement' section, this section will assume that each analysis report is just 1K of statistical data for past 10 minutes.
 
 Assuming the size of each analysis report as 100K,
 - Size of analysis report per week : 100K * 6 * 24 hours * 7 days = ~100G per week
@@ -99,16 +99,15 @@ When choosing long-term database, below points from requirement should be consid
 
 ### Data Modeling
 
-Data modeling is important for high scaled system, because it is directly related to how efficiently partitioning and clustering performed.   
+Data modeling is important for high scaled system, as it is directly related to how efficiently partitioning and clustering can performed.   
 
 Informations such as user gender, age, location etc can offer business insight to merchants and need to be included.
-
-It's reasonable to collect only non-sensitive data unless there is special reason.
-
 Data structure example : 
 - User : User ID, Email, DoB, User grade, Gender, Country, Device info etc
 - Payment Event : Amount, Payment Method, Point usage, Point allocation, Timestamp
 - Merchant : Merchant ID, Merchant grade, Location, Businees Type (restaurant, hotel, etc)
+
+It's reasonable to collect only non-sensitive data unless there is special reason.
 
 Primary Key (Event ID) can be generated from user ID and timestamp, or from the Key Generation Service with base 64 encoding.   
 The randomly generated hash key from KGS will be better to support sharding. 
@@ -117,9 +116,6 @@ If PK is used as shard key and it includes business value such as timestamp, the
 To support time-series based range query efficiently, time data should be persisted in timestamp rather than [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. 
 
 ## High-level Architecture Design
-
----
-Kafka (event sending to collection tier) : Each Kafka server persist event data for fixed time period so we can reproduce when it lost
 
 Application server will send write event to the Kafka using Kafka Streams, which will become a entrance of our analysis pipeline.
 As each of write event does not required to keep sequential order, we can easily scale with additional Kafka topic and partition within a Kafka cluster.
@@ -168,6 +164,7 @@ Server side Load Balancer, reverse proxy, firewall should be placed between coll
 Servers from Cisco, Nginx, Amazon ELB, etc can be used for this purpose.   
 Round Robing approach will work for balancing the load.   
 
+#### Security
 This server (or machine) will be located in the DMZ security zone.
 
 [image2-10]()
@@ -229,11 +226,17 @@ Replicated cache server is not required as we already have backup in long-term s
 
 ### Data Access tier
 
+Merchants will access via Web client.   
+Our metrics should also be accessible through REST API.   
 
-### Identifying future bottlenecks
-Zookeeper
+#### Load Balancer
+Server side Load Balancer, reverse proxy, firewall should be placed between collection tier and outside of network.   
+Servers from Cisco, Nginx, Amazon ELB, etc can be used for this purpose.   
+Round Robing approach will work for balancing the load.   
 
-### Monitoring
-How are we monitoring the performance of our service?
+#### Security
+This server (or machine) will be located in the DMZ security zone.
+
+[image2-10]()
 
 Interviewers might ask for different approachs, their pros and cons. therre is no signle answer, and think trade offs!
