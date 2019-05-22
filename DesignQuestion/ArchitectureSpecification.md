@@ -221,7 +221,7 @@ Strict logging protocol is required.
 
 #### Load Balancer
 
-Server side Load Balancer, reverse proxy, firewall should be placed between collection tier and outside of network.   
+Server side Load Balancer, reverse proxy, firewall should be placed between data access tier and outside of network.   
 Servers from Cisco, Nginx, Amazon ELB, etc can be used for this purpose.   
 Round Robing approach will work for balancing the load.   
 
