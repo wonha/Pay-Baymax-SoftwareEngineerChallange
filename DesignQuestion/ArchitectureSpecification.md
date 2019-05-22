@@ -152,8 +152,6 @@ Round Robing approach will work for balancing the load.
 
 The SLB server will be located in the DMZ security zone.
 
-![image2-10, 1-6]()
-
 ### Message Queuing tier
 
 Streaming system usually span across many servers, so decoupling of the various components is crucial.   
@@ -170,11 +168,9 @@ But still, message can fail due to the speed different between producer producin
 Message Queues such as Kafka has fault tolerance with this by using durable messaging.   
 With durable message, consumer can read message slowly, and even can being in offline and perform batch process when it necessary.
 
-![image3-9]()
+![OfflineConsumer](./Images/OfflineConsumer.png)
 
 When data lost due to network failure, broker crashed, message queue crashed or consumer crashed, offline consumer can perform batch job from the durable message of historical data store.  
-
-![image3-11]()
 
 Message should be processed 'at least once' basis when it crashed due to any reason.   
 Additional Message auditing is required for this purpose.
@@ -232,5 +228,3 @@ Round Robing approach will work for balancing the load.
 #### Security
 
 This server (or machine) will be located in the DMZ security zone.
-
-![image2-10]()
