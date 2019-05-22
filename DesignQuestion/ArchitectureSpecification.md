@@ -101,78 +101,80 @@ When choosing long-term database, below points from requirement should be consid
 
 Data modeling is important for high scaled system, as it is directly related to how efficiently partitioning and clustering can performed.   
 
-Informations such as user gender, age, location etc can offer business insight to merchants and need to be included.
+Informations like user gender, age, location, etc can provide business insight to merchants and need to be included.   
+However sensitive data will not included unless for special reason.   
 Data structure example : 
 - User : User ID, Email, DoB, User grade, Gender, Country, Device info etc
 - Payment Event : Amount, Payment Method, Point usage, Point allocation, Timestamp
 - Merchant : Merchant ID, Merchant grade, Location, Businees Type (restaurant, hotel, etc)
 
-It's reasonable to collect only non-sensitive data unless there is special reason.
 
-Primary Key (Event ID) can be generated from user ID and timestamp, or from the Key Generation Service with base 64 encoding.   
-The randomly generated hash key from KGS will be better to support sharding. 
+Primary Key (Event ID) can be generated from the combination of user ID and timestamp, or from the Key Generation Service with base 64 encoding.   
+The randomly generated hash key from KGS will be better choice to support sharding.    
 If PK is used as shard key and it includes business value such as timestamp, then the data will not be equally  balanced across multiple shard servers unless using hash algorithm one more time.
 
-To support time-series based range query efficiently, time data should be persisted in timestamp rather than [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. 
-
-## High-level Architecture Design
-
-Application server will send write event to the Kafka using Kafka Streams, which will become a entrance of our analysis pipeline.
-As each of write event does not required to keep sequential order, we can easily scale with additional Kafka topic and partition within a Kafka cluster.
+To support time-series based range query efficiently, time data should be persisted in timestamp rather than [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.    
 
 ## Architecture Design
 
 The analytic system should be near real-time service (or streaming data system) with clients that consumes data.
 
+High level architecture of analysis system is as below : 
+
 [image1-3]()
 
 ### Collection tier
-The source of write event will send request to the collection tier, which is the entry of the analysis system. This tier can be composed with multiple Microservices.
 
-For the communication between the event source and collection tier, simple request / response pattern will be used, normally with REST API over HTTP.
+The source of write event (PayPay app) will send request to the collection tier, which is the entry of the analysis system. 
+This tier can be composed with multiple Microservices, such as authentication, authorization services as well as services sending write event to message queuing tier.   
 
-The collection tier will be composed with multiple services, such as authentication, authorization services as well as services sending write event to message queuing tier.   
-
-Recently some of database support to send event when the state of database object has changed. MongoDB's changestream or Oracle GoldenGate is supporting this.   
-With this feature, services does not need to send request to the next tier and database will automatically send the event to message queue tier when database object state changed.   
+For the communication between the event source and collection tier, simple request / response pattern can normally used, with REST API over HTTP.
 
 Each of services can horizontaly scaled easily, as they don't (and should not) hold any state.
 
 [image1-6]()
 
+Some of the database support feature such as MongoDB's Change Streams or Oracle GoldenGate, to send event when the state of database object has changed.   
+With this feature, services does not need to send request to the next tier, and database will automatically send an event to message queue tier when database object state changed.   
+One big advantage of this feature is on fault tolerance.
+
 #### Fault Tolerance
+
 In order not to lose data when services on collection tier, solid logging protocol is required, so that event can be reproduced when services on collection tier crashed.
 
-One big advantage of using event from database (changestream, GoldenGate) is that when the event couldn't reached to the broker due to any reason (network failure, broker crashed, etc), the DBMS will aware of this and reproduce the event when it comes to stable.
+One big advantage of using event from database (Change Streams, GoldenGate) is that when the event couldn't reached to the broker due to any reason (network failure, broker crashed, etc), the DBMS will aware of this and gurantees each of event reachs to the broker exactly once when failure becomes stable.
 
 #### Load Balancer
+
 Server side Load Balancer, reverse proxy, firewall should be placed between collection tier and outside of network.   
 Servers from Cisco, Nginx, Amazon ELB, etc can be used for this purpose.   
 Round Robing approach will work for balancing the load.   
 
 #### Security
-This server (or machine) will be located in the DMZ security zone.
+
+The SLB server will be located in the DMZ security zone.
 
 [image2-10]()
 
 ### Message Queuing tier
 
 Streaming system usually span across many servers, so decoupling of the various components is crucial.   
-Message queueing model such as Apache Kafka, RabbitMQ, ActiveMQ, etc are supporting this.
+Message queueing system such as Apache Kafka, RabbitMQ, ActiveMQ, etc are supporting this.
 
-Apache Kafka provided high performance with topic and partitioin feature.
+Apache Kafka provides high performance with topic and partitioin feature.    
+As each of write event does not required to be kept in sequential order, we can easily scale with additional Kafka topic and partition within a Kafka cluster.
 
 #### Fault Tolerance
 
-Apache Kafka provides high availability with replication cluster managed by Zookeeper.   
+Apache Kafka provides high availability with replication cluster and the Zookeeper managing the cluster.   
 
-But still, the speed of producer producing message and consumer consumming message can differ, and message will be lost when there are high pressure than consumer expected.     
-Message Queues such as Kafka has fault tolerance with durable messaging.   
-With durable message, consumer can read message slowly and also be offline and perform batch process when it necessary.
+But still, message can fail due to the speed different between producer producing message and consumer consumming message, and message will lost in this case.   
+Message Queues such as Kafka has fault tolerance with this by using durable messaging.   
+With durable message, consumer can read message slowly, and even can being in offline and perform batch process when it necessary.
 
 [image3-9]()
 
-When data lost due to network failure, broker crashed, message queue crashed or consumer crashed, offline consumer can perform batch job from the durable message historical store.  
+When data lost due to network failure, broker crashed, message queue crashed or consumer crashed, offline consumer can perform batch job from the durable message of historical data store.  
 
 [image3-11]()
 
@@ -188,42 +190,45 @@ As a consumer of message queue tier, analysis tier should keep up with the press
 Many open source products support distributed analysis tier, such as Spark, Storm, Flink, and Samza, all from Apache.   
 Applications using Spark Streams can perform anlysis.
 
-The data should be persisted in long-term storage in order to handle client's query.
-
-HDFS, Cassandra or even MongoDB can be the option for this.
+The data should be persisted in long-term storage after being processed in order to handle various kind of client's query.   
+HDFS, Cassandra or even MongoDB can be an option for this.
 
 #### Fault Tolerance
 
-Most of OSS product support high resilience with replica cluster.
+Most of OSS product support high resilience with replica cluster and Zookeeper if it is Apache product.
 
 ### In-memory Data Store (Caching)
+
 In capacity estimation section, we've calculated the volume of analysis report for past 4 weeks is 400GB.
 
-Assuming our server has 256GB of memory, at least 2 distributed cache server is necessary to hold analysis report for past 4 weeks.
+Assuming our server has 256GB of memory, at least 2 distributed cache server is necessary to hold analysis report for past 4 weeks.   
 Cache eviction policy is based on TTL.
 
-We can increase number of cache server into distributed cache cluster, to cache various format of analysis report or older data than 4 weeks.
+We can put more cache server into the distributed cache cluster, to cache various format of analysis report or older data than 4 weeks.    
 Cache eviction policy can be LRU in this case.
 
-Distributed cache, in-memory database grid and embedded database within analysis processor can be used for this purpose. (Memcached, Redis, Hazelcast, MemSQL, Couchbase, etc)
+Distributed cache, in-memory database grid or even embedded database within analysis processor can be used for this purpose (Memcached, Redis, Hazelcast, MemSQL, Couchbase, etc).   
 
 ### Fault Tolerance 
 
-Replicated cache server is not required as we already have backup in long-term storage.
+Replicated cache server is not required as there are already backup in long-term storage.
 
 ### Data Access tier
 
 Merchants will access via Web client.   
 Our metrics should also be accessible through REST API.   
+These can be implemented as independent Microservices which can scalse easily.  
+
+If cache miss occurs with the query from merchants, analysis tier will process with the data from long-term storage to return query.
 
 #### Load Balancer
+
 Server side Load Balancer, reverse proxy, firewall should be placed between collection tier and outside of network.   
 Servers from Cisco, Nginx, Amazon ELB, etc can be used for this purpose.   
 Round Robing approach will work for balancing the load.   
 
 #### Security
+
 This server (or machine) will be located in the DMZ security zone.
 
 [image2-10]()
-
-Interviewers might ask for different approachs, their pros and cons. therre is no signle answer, and think trade offs!
