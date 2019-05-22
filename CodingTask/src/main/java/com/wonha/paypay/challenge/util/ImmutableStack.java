@@ -58,7 +58,7 @@ public class ImmutableStack<T> implements Stack<T>, Iterable<T>, Countable {
 		return this.size;
 	}
 
-	ImmutableStack<T> createReversed() {
+	ImmutableStack<T> newReversed() {
 		ImmutableStack<T> reversed = getEmptyInstance();
 		for (T t : this) {
 			reversed = reversed.push(t);
