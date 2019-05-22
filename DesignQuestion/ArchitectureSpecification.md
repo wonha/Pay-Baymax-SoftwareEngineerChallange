@@ -14,7 +14,7 @@
 - Large Read/Query :  Millions of merchants perform Read/Query
 - High Availability : Run with minimum downtime
 
-### Extended Requirements :
+### Extended Requirements
 
 These more detailed requirements based on the original requirement, and some of them are based on usecase assumption.
 
@@ -120,25 +120,11 @@ To support time-series based range query efficiently, time data should be persis
 Application server will send write event to the Kafka using Kafka Streams, which will become a entrance of our analysis pipeline.
 As each of write event does not required to keep sequential order, we can easily scale with additional Kafka topic and partition within a Kafka cluster.
 
-Spark, Spark Streaming (Calcuation) : applications using Spark Streams calculate on analysis tier
-
-HDFS / Cassandra
-
-HBASE
-
----
-
-## Architectural 
+## Architecture Design
 
 The analytic system should be near real-time service (or streaming data system) with clients that consumes data.
 
 [image1-3]()
-
-
-
-## Detailed Design
-How much and at which layer should we introduce cache to speed things up?
-What components need better load balancing?
 
 ### Collection tier
 The source of write event will send request to the collection tier, which is the entry of the analysis system. This tier can be composed with multiple Microservices.
@@ -200,6 +186,7 @@ Continuous query model is required to process data in flight.
 As a consumer of message queue tier, analysis tier should keep up with the pressure and evaluate the new data.
 
 Many open source products support distributed analysis tier, such as Spark, Storm, Flink, and Samza, all from Apache.   
+Applications using Spark Streams can perform anlysis.
 
 The data should be persisted in long-term storage in order to handle client's query.
 
