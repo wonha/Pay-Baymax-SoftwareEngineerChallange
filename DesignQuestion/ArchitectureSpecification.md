@@ -121,7 +121,7 @@ The analytic system should be near real-time service (or streaming data system) 
 
 High level architecture of analysis system is as below : 
 
-[image1-3]()
+[High level Architecture](./Images/HighLevelArchitecture.png)
 
 ### Collection tier
 
@@ -131,8 +131,6 @@ This tier can be composed with multiple Microservices, such as authentication, a
 For the communication between the event source and collection tier, simple request / response pattern can normally used, with REST API over HTTP.
 
 Each of services can horizontaly scaled easily, as they don't (and should not) hold any state.
-
-[image1-6]()
 
 Some of the database support feature such as MongoDB's Change Streams or Oracle GoldenGate, to send event when the state of database object has changed.   
 With this feature, services does not need to send request to the next tier, and database will automatically send an event to message queue tier when database object state changed.   
@@ -154,7 +152,7 @@ Round Robing approach will work for balancing the load.
 
 The SLB server will be located in the DMZ security zone.
 
-[image2-10]()
+[image2-10, 1-6]()
 
 ### Message Queuing tier
 
@@ -209,7 +207,7 @@ Cache eviction policy can be LRU in this case.
 
 Distributed cache, in-memory database grid or even embedded database within analysis processor can be used for this purpose (Memcached, Redis, Hazelcast, MemSQL, Couchbase, etc).   
 
-### Fault Tolerance 
+#### Fault Tolerance 
 
 Replicated cache server is not required as there are already backup in long-term storage.
 
@@ -220,6 +218,10 @@ Our metrics should also be accessible through REST API.
 These can be implemented as independent Microservices which can scalse easily.  
 
 If cache miss occurs with the query from merchants, analysis tier will process with the data from long-term storage to return query.
+
+#### Falut Tolerance
+
+Strict logging protocol is required.
 
 #### Load Balancer
 
