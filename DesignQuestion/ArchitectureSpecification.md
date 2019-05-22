@@ -227,4 +227,4 @@ Round Robing approach will work for balancing the load.
 
 #### Security
 
-This server (or machine) will be located in the DMZ security zone.
+The SLB server will be located in the DMZ security zone.
