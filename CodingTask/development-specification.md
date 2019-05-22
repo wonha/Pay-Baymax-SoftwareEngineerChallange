@@ -12,7 +12,7 @@ Please implement an immutable queue with the following api:
 ... _(skip)_ ...
 
 ### Extended Requirements
-This section clarifies several requirement details and add more requirements based on usecase assumption.
+This section clarifies several requirement details and add more requirements based on usecases assumption.
 
 - The immutable queue should permit all elements (including null).
   
@@ -64,24 +64,28 @@ N/A
 ## Implementation Specifications
 
 ### Functional Programming style
-Functional Programming style AMAP, 
-    1. most of instance variables are immutable except some for implementation simplicity
-    1. Most of the methods has no side effect and some of them are even pure function (for example, the return value of deQueue() method on 1 element queue is always identical)
+
+Functional Programming style is introduced on a best-effort basis.
+1. Instance variables are immutable except for some for implementation simplicity
+1. Most of the methods has no side effect and some are pure function (for example, the return value of deQueue() method on 1 element queue is always identical), although it could not be the first class citizen. 
 
 ### Implementation Trade-offs
 
-`Countable` interface `Iterable` interface `StackIterator`
+This `ImmutableQueue` class is likely to be faster than any other implementation based on array or list which copies all the value inside to create new instance.   
+'Faster' above means in amortized time manner, and as we can expect spatial locality by using array, some of the operations will be a bit faster in array based approach. However, one another downside is that since array does not automatically shrink in Java, code level complexity is increased to free unused memory space.   
+Also if array or list is used internally, then time complexity of enQueue() and deQueue() will become O(n).
 
-Internally uses array for spatial locality, downside is it doens't shirnk automatically.
-Time complexity enQueue & deQueue, avg case: O(1)
-If we internally use array instead of immutablestack, then time complexity become O(n)
+`ImmutableQueue` and `ImmutableStack` are implementing `Countable` interface which contains `size()` operation. Better option will be let `Queue` and `Stack` interface extend an interface containing `size()` operation (like JDK library).
 
-Concrete class does not expose public constructor. Need to call the static method to get empty Queue or Stack to start with.
+`ImmutableStackIterator` and `StackIterator` is used to implement `Iterable` interface. This is to use stack implementation easier with for-each loop.
+
+Concrete classes does not expose public constructor.   
+Need to call the static method to get empty Queue or Stack to start with.  
+This is in order to reuse singleton object (like TRUE and FALSE object in Boolean class).
 
 ### Complexity
 
-All of the ImmutableQueue operations run in amortized constant time.  
-This `ImmutableQueue` class is likely to be faster than any other implementation based on array which copies value.
+All of the `ImmutableQueue` operations run in amortized constant time.  
 
 
 | | Method | Best | Worst | Avg. |
@@ -98,17 +102,18 @@ This `ImmutableQueue` class is likely to be faster than any other implementation
 | | isEmpty() | O(1) | O(1) | O(1) |
 
 ### Stack
-`ImmutableStack` class `Stack` interface
-getEmptyInstance() guarantees that all the empty ImmutableStack instances are identical as well as equal.
-This is efficiency and based on thinking that "duplicated Immutable object does not need to exist in functional world"
-The private constructur and 2 argument constructor guarantees this
+`ImmutableStack` class implements `Stack` interface.
 
-Iterator is concurrent safe, unlike Java's other iterator, there is no need to keep track of modification count of backing ImmutableStack
+getEmptyInstance() guarantees that all the empty ImmutableStack instances are identical as well as equal.
+This is because duplicated immutable object does not need to be exist in functional world.
+
+`ImmutableStack` is completely immutable object, and most of the methods are written in functional style.
 
 ### Iterator
-`Iterator` interface `StackIterator` interface `ImmutableStackIterator` class
-`StackIterator` and `Stack` are on the same level of abstraction. 
+`ImmutableStackIterator` class implements `StackIterator` interface and this interface extends `Iterator` interface.   
+This structure is to give the same level of abstraction with other JDK collections framework.   
 
-Unlike other iterator implementations in `java.util`, the iterator returned by `ImmutableStack` class's iterator method does not need to be fail-fast: backing object is immutable, so there are no need to throw `ConcurrentModificationException` when backing structure is changed. 
+`ImmutableStackIterator` is also immutable class (although it internally change it's state).   
+`StackIterator` contains `pop()` operation which returns immutable iterator.
 
-TBD - Along with ImmutableQueue and ImmutableStack, the Iterator implementation also should be immutable. ImmutableStackIterator should return new Iterator whenever `pop()` is called, which is defined in the StackIterator interface. This class does not need to keep track of the modification count to avoid `ConcurrentModificationException()`, since the object is immutable.
+Unlike other iterator implementations in `java.util`, the iterator returned by `ImmutableStack` class's iterator method does not need to be fail-fast (concurrent-safe); backing object is already immutable, so no need to keep track of modification count of backing object, and `ConcurrentModificationException` won't be thrown. 
